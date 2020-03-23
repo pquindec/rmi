@@ -12,6 +12,7 @@ import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.ArrayList;
+import servidor.Servidor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.table.DefaultTableModel;
@@ -30,35 +31,7 @@ public class FrmEmpleado extends javax.swing.JFrame {
         
     }
 
-    public void Consultar() throws NotBoundException {
-        try{
-            Registry registro = LocateRegistry.getRegistry("127.0.0.1", 1234);
-            Servicios Interfaz = (Servicios) registro.lookup("rmi://localhost:1234/Servicios");            
-            ArrayList<Empleado>ListadoEmpleado = new ArrayList<Empleado>();
-            ListadoEmpleado = Interfaz.Consul();
 
-            DefaultTableModel modelo = new DefaultTableModel();
-            
-            modelo.addColumn("Apellido");
-            modelo.addColumn("Id Empleado");
-            modelo.addColumn("Id Perfil");
-            modelo.addColumn("Nombre");
-            
-            String datos[] = new String[4];
-            for (int i = 0; i < ListadoEmpleado.size(); i++) {
-                
-                datos[0] = ListadoEmpleado.get(i).getApellido();
-                datos[1] = ListadoEmpleado.get(i).getIdemp();
-                datos[2] = ListadoEmpleado.get(i).getIdperfil();
-                datos[3] = ListadoEmpleado.get(i).getNombre();
-               
-                modelo.addRow(datos);
-            }
-            jTable1.setModel(modelo);       
-        }catch (RemoteException ex){
-            System.out.println("Servidor Inactivo - No se puede conectar");
-        }
-    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -134,12 +107,43 @@ public class FrmEmpleado extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
         try {
-            Consultar();
+            Consul();
         } catch (NotBoundException ex) {
-            Logger.getLogger(frmPersona.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(FrmEmpleado.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_jButton1ActionPerformed
 
+    
+        public void Consul() throws NotBoundException {
+        try{
+            Registry registro = LocateRegistry.getRegistry("localhost", 1201);
+            Servicios Interfaz = (Servicios) registro.lookup("rmi://localhost:1211/Servicios");
+            Servidor ser = new Servidor();
+            ArrayList<Empleado>ListadoEmpleado = new ArrayList<Empleado>();
+            
+
+            DefaultTableModel modelo = new DefaultTableModel();
+            
+            modelo.addColumn("Apellido");
+            modelo.addColumn("Id Empleado");
+            modelo.addColumn("Id Perfil");
+            modelo.addColumn("Nombre");
+            ListadoEmpleado = ser.Consul();
+            String datos[] = new String[4];
+            for (int i = 0; i < ListadoEmpleado.size(); i++) {
+                
+                datos[0] = ListadoEmpleado.get(i).getApellido();
+                datos[1] = ListadoEmpleado.get(i).getIdemp();
+                datos[2] = ListadoEmpleado.get(i).getIdperfil();
+                datos[3] = ListadoEmpleado.get(i).getNombre();
+               
+                modelo.addRow(datos);
+            }
+            jTable1.setModel(modelo);       
+        }catch (RemoteException ex){
+            System.out.println("Servidor Inactivo - No se puede conectar");
+        }
+    }
     /**
      * @param args the command line arguments
      */
